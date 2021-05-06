@@ -54,7 +54,7 @@ def Taco(text,idx):
 
     soundfile.write("AUDIO/tmp_taco.wav", audio[0].data.cpu().numpy().astype("float32"), 22050)
 
-def VoiceClone(text,ref_audio,idx):
+def VoiceClone(text,ref_audio):
 
     # Normalization - Phonetization
     delimit="/"
@@ -83,27 +83,28 @@ def VoiceClone(text,ref_audio,idx):
     sys.path.append('speaker_verification')
     from taco_inference import generateAudio
 
-    wave = generateAudio("AUDIO/tmp.wav" ,ref,"autovc/checkpoints_wided_addnoise_final/autovc_250000.pt", "waveglow/checkpoint_step001000000_ema.pth", english=False)
+    wave = generateAudio("AUDIO/tmp.wav" ,ref_audio,"autovc/checkpoints_wided_addnoise_final/autovc_250000.pt", "waveglow/checkpoint_step001000000_ema.pth", english=False)
     
     return wave
 
 from MCD import evaluate_mcd_wav
 if __name__ =='__main__':
-    audio_path = "/home/trinhan/AILAB/VoiceConversion/vivos_only_wavs/"
+    audio_path = "/home/trinhan/AILAB/VoiceClone/DATA/VIVOS/vivos/test/waves/"
     MCD = []
     with open("DATA/VoiceCloneMCDtest.txt", "r",encoding="utf-8") as f:
-        lines = f.read().splitline()
+        lines = f.read().splitlines()
         for idx,text in enumerate(lines[1:]):
             script , ref , ground = text.split("\t")
             speaker_ref, _ = ref.split("_")
             speaker_ground, _ = ground.split("_")
 
             ref_path = audio_path + speaker_ref + "/" + ref + ".wav"
-            ground_path = audio_path + speaker_ground + "/" ground + ".wav"
+            ground_path = audio_path + speaker_ground + "/" + ground + ".wav"
 
+            print(ref_path)
             wave = VoiceClone(script,ref_path)
 
-            librosa.output.write_wav("AUDIO/VoiceClone/"+str(idx)+".wav", wave, 16000)
+            soundfile.write("AUDIO/VoiceClone/"+str(idx)+".wav", wave, 16000)
 
             mcd = evaluate_mcd_wav(ground_path,"AUDIO/VoiceClone/"+str(idx)+".wav")
             MCD.append(mcd)
