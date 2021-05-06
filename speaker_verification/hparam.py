@@ -47,7 +47,7 @@ class Dotdict(dict):
 
 class Hparam(Dotdict):
 
-    def __init__(self, file=os.getcwd()+'/autovc/speaker_verification/config.yaml'):
+    def __init__(self, file=os.getcwd()+'/speaker_verification/config.yaml'):
         super(Dotdict, self).__init__()
         hp_dict = load_hparam(file)
         hp_dotdict = Dotdict(hp_dict)

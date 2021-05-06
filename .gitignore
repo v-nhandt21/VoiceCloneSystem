@@ -132,8 +132,8 @@ tacotron2/checkpoint_54000
 # Checkpoint autovc
 autovc/checkpoints_wided_addnoise_final/*
 # Checkpoint speaker encoder english
-autovc/speaker_verification/3000000-BL.ckpt
+speaker_verification/3000000-BL.ckpt
 # Checkpoint waveglow
 waveglow/waveglow_256channel.pt
 # Checkpoint speaker encoder vietnamese
-autovc/speaker_verification/final_epoch_950_batch_id_103.model
+speaker_verification/final_epoch_950_batch_id_103.model

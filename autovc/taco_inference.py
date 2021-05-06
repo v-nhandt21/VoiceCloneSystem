@@ -1,34 +1,29 @@
 import os
+import sys
 import pickle
 import torch
 import numpy as np
 from math import ceil
-from model_vc import Generator
-from model_bl import D_VECTOR
 from collections import OrderedDict
-
-
 import librosa
-from synthesis import build_model
-from synthesis import wavegen
-
-from make_spect import makeSpect
-
 import soundfile as sf
 
-import sys
-sys.path.append('./speaker_verification/')
+from model_vc import Generator
+from model_bl import D_VECTOR
+from synthesis import build_model
+from synthesis import wavegen
+from make_spect import makeSpect
 
 
+sys.path.append(os.getcwd() +'/speaker_verification')
 from hparam import hparam as hp
 from speech_embedder_net import SpeechEmbedder
 from VAD_segments import VAD_chunk
 
 from waveglow_vocoder import WaveGlowVocoder
 
-
 encoder = SpeechEmbedder()
-encoder.load_state_dict(torch.load(os.getcwd()+"/autovc/speaker_verification/final_epoch_950_batch_id_103.model"))
+encoder.load_state_dict(torch.load(os.getcwd()+"/speaker_verification/final_epoch_950_batch_id_103.model"))
 encoder.eval()
 
 def isFailed(emb):
@@ -150,13 +145,6 @@ def new_mel_generate(path):
 
     mel = WV.wav2mel(y_tensor)
     return mel
-
-
-###
-
-
-
-
 
 def generateAudio(original_audio, ref_audio, autovc_checkpoint, vocoder_checkpoint ,english=False):
 

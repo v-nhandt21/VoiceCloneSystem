@@ -54,7 +54,7 @@ def Taco(text,idx):
 
     soundfile.write("AUDIO/tmp_taco.wav", audio[0].data.cpu().numpy().astype("float32"), 22050)
 
-def VoiceClone(text,ref,idx):
+def VoiceClone(text,ref_audio,idx):
 
     # Normalization - Phonetization
     delimit="/"
@@ -67,52 +67,46 @@ def VoiceClone(text,ref,idx):
 
     # Synthesizer: Tacotron2
     mel_outputs, mel_outputs_postnet, _, alignments = model.inference(sequence)
-    #mel_outputs_postnet = mel_outputs_postnet.cuda().float()
 
     print(mel_outputs_postnet.dtype)
     # Vocoder: Waveglow
     with torch.no_grad():
         audio = waveglow.infer(mel_outputs_postnet, sigma=0.666)
 
-    
-
-    soundfile.write("AUDIO/tmp.wav", audio[0].data.cpu().numpy().astype("float32"), 22050)
-    
     # Down Sample Rate
+    soundfile.write("AUDIO/tmp.wav", audio[0].data.cpu().numpy().astype("float32"), 22050)
     tmp_audio, sf = librosa.load("AUDIO/tmp.wav", 16000)
     soundfile.write("AUDIO/tmp.wav", tmp_audio, sf)
     test_audio, sr = soundfile.read("AUDIO/tmp.wav")
 
     sys.path.append('autovc/')
-    sys.path.append('autovc/speaker_verification')
+    sys.path.append('speaker_verification')
     from taco_inference import generateAudio
 
     wave = generateAudio("AUDIO/tmp.wav" ,ref,"autovc/checkpoints_wided_addnoise_final/autovc_250000.pt", "waveglow/checkpoint_step001000000_ema.pth", english=False)
+    
+    return wave
 
-    librosa.output.write_wav("AUDIO/VoiceClone/"+str(idx)+".wav", wave, 16000)
-
+from MCD import evaluate_mcd_wav
 if __name__ =='__main__':
-    texts = ["ở bất kỳ tình huống nào , cũng không được để xảy ra việc bạo hành trẻ",
-    "á hậu hoàn vũ hoàng thuỳ , và người mẫu cao ngân . chúc mừng hương giang",
-    "oanh cũng không bị áp lực , khi ngồi ghế nóng , giám khảo . trong chương trình , gương mặt thân quen",
-    "ẩn phía sau các bề mặt phẳng , của tàu , là những hệ thống vũ khí tối tân",
-    "ẩm thực và đồ nội thất , là hai mảng kinh doanh nổi bật . của đại gia đình anh",
-    "cả ba đều đang kiên nhẫn chờ đợi cơ hội , đến với cuộc đời",
-    "ấn độ không còn là nền kinh tế lớn phát triển nhanh nhất thế giới",
-    "sách điện tử , như người bạn mới , sẽ dần dần trở thành quen thuộc , với mọi người",
-    "ai cần thì gọi vào số máy ghi sẵn trên tờ rơi , dán ở các cột điện",
-    "ước mơ được định cư hợp pháp , và đi học đại học ở mỹ . tan theo mây khói",
-    "ốc lượm về trước tiên , cho vào thau ngâm với nước vo gạo . để ốc nhả bớt chất bẩn",
-    "pha chế , là nghề được nhiều bạn theo đăng ký , trong đầu năm . tại trung cấp việt giao",
-    "gạch không nung , có nhiều ưu điểm vượt trội , hơn gạch nung thông thường",
-    "ít ai biết , mối tình đầu lãng mạn của tôi . là một chàng trai việt đấy",
-    "da của bạn không được đẹp . thì cũng không cần lo lắng nhiều . mà chỉ cần sử dụng mật ong",
-    "ủng hộ đồng bào các tỉnh miền núi phía bắc . bị thiệt hại , do thiên tai",
-    "bà ấy được quyết định , là phải tránh xa các nhiệm vụ trong quyền hành của bà",
-    "oanh được anh dũng đón trở về nhà . khi những ngày tết đã cận kề",
-    "ước gì tôi được nhảy vào một cỗ máy thời gian . và mang tất cả trở lại",
-    "bà ấy không viết . và rồi họ không tín nhiệm . để bà ấy , làm chủ tịch hội phụ nữ xã nữa"]
+    audio_path = "/home/trinhan/AILAB/VoiceConversion/vivos_only_wavs/"
+    MCD = []
+    with open("DATA/VoiceCloneMCDtest.txt", "r",encoding="utf-8") as f:
+        lines = f.read().splitline()
+        for idx,text in enumerate(lines[1:]):
+            script , ref , ground = text.split("\t")
+            speaker_ref, _ = ref.split("_")
+            speaker_ground, _ = ground.split("_")
 
-    for idx,text in enumerate(texts):
-        ref = "../VoiceConversion/vivos_only_wavs/VIVOSSPK24/VIVOSSPK24_001.wav"
-        VoiceClone(text,ref,idx)
+            ref_path = audio_path + speaker_ref + "/" + ref + ".wav"
+            ground_path = audio_path + speaker_ground + "/" ground + ".wav"
+
+            wave = VoiceClone(script,ref_path)
+
+            librosa.output.write_wav("AUDIO/VoiceClone/"+str(idx)+".wav", wave, 16000)
+
+            mcd = evaluate_mcd_wav(ground_path,"AUDIO/VoiceClone/"+str(idx)+".wav")
+            MCD.append(mcd)
+            
+            print(str(idx)+" - "+script)
+            print(sum(MCD)/len(MCD))
