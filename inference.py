@@ -89,12 +89,33 @@ def VoiceClone(text,ref_audio):
 
 from MCD import evaluate_mcd_wav
 if __name__ =='__main__':
-    audio_path = "/home/trinhan/AILAB/VoiceClone/DATA/VIVOS/vivos/test/waves/"
+
+    
+    import glob
+    ExitAudio = glob.glob("/home/trinhan/AILAB/VCSystem/AUDIO/VoiceClone/*.wav")
+    ExitAudio = [e.replace("/home/trinhan/AILAB/VCSystem/AUDIO/VoiceClone/","").replace(".wav","") for e in ExitAudio ]
+    print(ExitAudio)
+
+    audio_path = "/home/trinhan/AILAB/VoiceClone/DATA/VIVOS/vivos/train/waves/"
     MCD = []
-    with open("DATA/VoiceCloneMCDtest.txt", "r",encoding="utf-8") as f:
+    SPEAKER = []
+    with open("DATA/VoiceCloneMCDtrain.txt", "r",encoding="utf-8") as f:
         lines = f.read().splitlines()
         for idx,text in enumerate(lines[1:]):
+            
+            if str(idx) in ExitAudio:
+                print("Audio was generated: ",idx)
+
+                script , ref , ground = text.split("\t")
+                SPEAKER.append(ref.split("_")[0])
+                
+                continue
+
             script , ref , ground = text.split("\t")
+
+            if ref.split("_")[0] in SPEAKER:
+                continue
+            
             speaker_ref, _ = ref.split("_")
             speaker_ground, _ = ground.split("_")
 
@@ -102,12 +123,25 @@ if __name__ =='__main__':
             ground_path = audio_path + speaker_ground + "/" + ground + ".wav"
 
             print(ref_path)
+
+            #try:
+            #print("Generate audio: ",idx)
             wave = VoiceClone(script,ref_path)
+            #except:
+            #    print("Audio return null due to verification module")
+            #    continue
 
+            if wave is None:
+                print("Audio return null due to verification module")
+                continue
+            
+            print(wave)
             soundfile.write("AUDIO/VoiceClone/"+str(idx)+".wav", wave, 16000)
-
+        
             mcd = evaluate_mcd_wav(ground_path,"AUDIO/VoiceClone/"+str(idx)+".wav")
             MCD.append(mcd)
             
             print(str(idx)+" - "+script)
             print(sum(MCD)/len(MCD))
+
+            SPEAKER.append(ref.split("_")[0])

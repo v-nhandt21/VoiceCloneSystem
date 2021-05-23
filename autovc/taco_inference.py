@@ -174,7 +174,7 @@ def generateAudio(original_audio, ref_audio, autovc_checkpoint, vocoder_checkpoi
     else:
         emb_ref = get_verification_eng(ref_audio)
         
-    if emb_org is None or emb_ref is None: return
+    if emb_org is None or emb_ref is None: return None
    
     emb_org = torch.FloatTensor(emb_org).unsqueeze(0).cuda()
     if not english:

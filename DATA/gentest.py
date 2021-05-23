@@ -1,8 +1,8 @@
 import random
 count =0
-with open("MCDtest.txt","w+", encoding = "utf-8") as fw:
+with open("VoiceCloneMCDtrain.txt","w+", encoding = "utf-8") as fw:
     fw.write("script\tref\tground\n")
-    with open("prompts.txt","r", encoding="utf-8") as f:
+    with open("/home/trinhan/AILAB/VoiceClone/DATA/VIVOS/vivos/train/prompts.txt","r", encoding="utf-8") as f:
         lines = f.read().splitlines()
         for line in lines:
             path1, script1 = line.split(" ",1)
