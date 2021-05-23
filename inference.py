@@ -92,8 +92,8 @@ if __name__ =='__main__':
 
     
     import glob
-    ExitAudio = glob.glob("/home/trinhan/AILAB/VCSystem/AUDIO/VoiceClone/*.wav")
-    ExitAudio = [e.replace("/home/trinhan/AILAB/VCSystem/AUDIO/VoiceClone/","").replace(".wav","") for e in ExitAudio ]
+    ExitAudio = glob.glob("/home/trinhan/AILAB/VCSystem/AUDIO/VCSystem/VoiceClone/*.wav")
+    ExitAudio = [e.replace("/home/trinhan/AILAB/VCSystem/AUDIO/VCSystem/VoiceClone/","").replace(".wav","") for e in ExitAudio ]
     print(ExitAudio)
 
     audio_path = "/home/trinhan/AILAB/VoiceClone/DATA/VIVOS/vivos/train/waves/"
@@ -136,9 +136,9 @@ if __name__ =='__main__':
                 continue
             
             print(wave)
-            soundfile.write("AUDIO/VoiceClone/"+str(idx)+".wav", wave, 16000)
+            soundfile.write("AUDIO/VCSystem/VoiceClone/"+str(idx)+".wav", wave, 16000)
         
-            mcd = evaluate_mcd_wav(ground_path,"AUDIO/VoiceClone/"+str(idx)+".wav")
+            mcd = evaluate_mcd_wav(ground_path,"AUDIO/VCSystem/VoiceClone/"+str(idx)+".wav")
             MCD.append(mcd)
             
             print(str(idx)+" - "+script)

@@ -130,17 +130,52 @@ def evaluate_mcd_wav(file_path1, file_path2):
     return mcd
 
 if __name__ =='__main__':
-    mcd_taco = []
-    mcd_fast = []
-    for i in range(20):
-        ground = "AUDIO/GroundTruth/"+str(i)+".wav"
-        fast = "AUDIO/FastSpeech_MCD/"+str(i)+".wav"
-        taco = "AUDIO/Tacotron_MCD/"+str(i)+".wav"
+
+    # mcd_taco = []
+    # mcd_fast = []
+    # for i in range(20):
+    #     ground = "AUDIO/MelSynthesizer/GroundTruth/"+str(i)+".wav"
+    #     fast = "AUDIO/MelSynthesizer/FastSpeech_MCD/"+str(i)+".wav"
+    #     taco = "AUDIO/MelSynthesizer/Tacotron_MCD/"+str(i)+".wav"
         
-        mcd_taco.append( float(evaluate_mcd_wav(ground,taco) ))
-        mcd_fast.append( float(evaluate_mcd_wav(ground,fast)))
+    #     mcd_taco.append( float(evaluate_mcd_wav(ground,taco) ))
+    #     mcd_fast.append( float(evaluate_mcd_wav(ground,fast)))
     
-    print("Process MCD for GroundTruth and Tacotron2")
-    print(sum(mcd_taco)/len(mcd_taco))
-    print("Process MCD for GroundTruth and FastSpeech2")
-    print(sum(mcd_fast)/len(mcd_fast))
+    # print("Process MCD for GroundTruth and Tacotron2")
+    # print(sum(mcd_taco)/len(mcd_taco))
+    # print("Process MCD for GroundTruth and FastSpeech2")
+    # print(sum(mcd_fast)/len(mcd_fast))
+
+    ##########
+
+    # MCD VC System
+
+    import glob
+    import shutil
+    import os 
+
+    mcd_test = []
+    mcd_train = []
+
+    Test_infer = glob.glob("/home/trinhan/AILAB/VCSystem/AUDIO/VCSystem/VoiceClone_test/*.wav")
+
+    for infer in Test_infer:
+        file_infer = infer.replace("/home/trinhan/AILAB/VCSystem/AUDIO/VCSystem/VoiceClone_test/","")
+        ground = file_infer.split("-")[1]
+        ground_file = "/home/trinhan/AILAB/VCSystem/AUDIO/VCSystem/Ground_test/"+ground
+
+        mcd_test.append( float(evaluate_mcd_wav(ground_file,ground_file) ))
+
+    Train_infer = glob.glob("/home/trinhan/AILAB/VCSystem/AUDIO/VCSystem/VoiceClone_train/*.wav")
+
+    for infer in Train_infer:
+        file_infer = infer.replace("/home/trinhan/AILAB/VCSystem/AUDIO/VCSystem/VoiceClone_train/","")
+        ground = file_infer.split("-")[1]
+        ground_file = "/home/trinhan/AILAB/VCSystem/AUDIO/VCSystem/Ground_train/"+ground
+
+        mcd_train.append( float(evaluate_mcd_wav(ground_file,ground_file) ))
+
+    print("Process MCD for GroundTruth and AutoVC on trainset")
+    print(sum(mcd_train)/len(mcd_train))
+    print("Process MCD for GroundTruth and AutoVC on testset")
+    print(sum(mcd_test)/len(mcd_test))
